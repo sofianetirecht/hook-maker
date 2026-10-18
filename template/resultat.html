@@ -260,7 +260,7 @@ footer .wrap { padding-block: 0 40px; display: flex; justify-content: space-betw
   ],
   "hooks": [
     { "canal": "oral", "meilleur": true, "type": "Solution inutile", "modele": "#15 · Tu n'as pas besoin de [solution] pour [résultat]", "texte": "Tu n'as pas besoin de payer un seul abonnement pour monter tes vidéos et transcrire tes calls.", "pourquoi": "Il reprend la croyance de ta cible (il faut payer) et la casse. Il couvre les deux usages du reel." },
-    { "canal": "oral", "type": "Le test", "modele": "Modèle Fanny #2 · Personne n'en parle, mais j'ai testé…", "texte": "Personne n'en parle, mais j'ai remplacé 3 applis payantes par 3 outils gratuits pendant un mois.", "pourquoi": "Le test donne une preuve vécue. « Un mois » rend le résultat crédible." },
+    { "canal": "oral", "type": "Le test", "modele": "Modèle #2 · Personne n'en parle, mais j'ai testé…", "texte": "Personne n'en parle, mais j'ai remplacé 3 applis payantes par 3 outils gratuits pendant un mois.", "pourquoi": "Le test donne une preuve vécue. « Un mois » rend le résultat crédible." },
     { "canal": "oral", "type": "Contre-intuitif", "modele": "#30 · Ça va peut-être te surprendre, mais…", "texte": "Ça va peut-être te surprendre, mais les meilleurs outils pour créer du contenu sont gratuits.", "pourquoi": "Il crée un écart avec ce que ta cible croit. Moins précis que le premier." },
     { "canal": "textuel", "meilleur": true, "type": "Résultat chiffré", "modele": "Texte écran", "texte": "0 € d'abonnement. 3 outils. Vidéos + calls.", "pourquoi": "Il complète l'oral au lieu de le répéter, et il annonce les deux usages." },
     { "canal": "textuel", "type": "Frustration", "modele": "Texte écran", "texte": "Arrête de payer CapCut Pro", "pourquoi": "Nomme un outil connu : la cible se reconnaît tout de suite." }
@@ -494,7 +494,7 @@ footer .wrap { padding-block: 0 40px; display: flex; justify-content: space-betw
   function redo(idx, variant, card, txt, why, act) {
     if (!sample) return;
     var h = D.hooks[idx];
-    var prompt = "Tu es Hook Maker, expert des hooks de reels Instagram (méthode @growithfanny).\n" + REGLES +
+    var prompt = "Tu es Hook Maker, expert des hooks de reels Instagram.\n" + REGLES +
       "\n\nNiche : " + JSON.stringify(D.niche || {}) +
       "\nContexte : " + JSON.stringify(D.contexte || {}) +
       "\nSujet de la vidéo : " + (D.titre || "") +

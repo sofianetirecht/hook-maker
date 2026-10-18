@@ -1,7 +1,5 @@
 # Structure d'un script de reel qui retient
 
-Source : reel Instagram https://www.instagram.com/p/DdmLvdTIdyR/ (audio récupéré avec yt-dlp, transcrit avec Whisper le 18/10/2026).
-
 ## La structure
 
 1. **Hook** : l'accroche.
@@ -25,7 +23,7 @@ Source : reel Instagram https://www.instagram.com/p/DdmLvdTIdyR/ (audio récupé
 >
 > Commente le mot « ÉLITE » et je t'envoie personnellement ma méthode pour faire exploser ta croissance organique et ton chiffre d'affaires.
 
-## Version détaillée (guide de @growithfanny : « Structure de contenu qui capte l'attention »)
+## Version détaillée
 
 Ne pas la reprendre mot pour mot : comprendre pourquoi elle garde l'attention, puis l'adapter au sujet, à la cible et à sa façon de parler. Chaque partie doit donner une raison d'écouter la suivante.
 

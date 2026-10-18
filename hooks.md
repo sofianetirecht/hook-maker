@@ -1,6 +1,6 @@
 # Modèles de hooks qui marchent
 
-Source : reel Instagram de @growithfanny, https://www.instagram.com/p/Db6C7oppvwe/ (audio récupéré avec yt-dlp, transcrit avec Whisper le 18/10/2026). Les « … » sont les trous à remplir avec son sujet.
+Les « … » sont les trous à remplir avec son sujet.
 
 ## Les modèles
 
@@ -27,7 +27,7 @@ Ils créent un manque d'information que le cerveau veut combler, tout en lui don
 >
 > Et si tu veux en recevoir 30 autres pour tes prochains contenus, commente « 30 » et je te les enverrai.
 
-## Les 30 hooks du guide de @growithfanny
+## 30 hooks
 
 Avant de choisir : se demander ce que la cible vit, pense ou veut vraiment aujourd'hui. Le hook n'est que la structure ; c'est le fond qui donne envie de regarder la suite.
 
