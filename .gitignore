@@ -1,0 +1,6 @@
+# Résultats et niches propres à chaque utilisateur
+analyses/
+niches/*
+!niches/_modele.md
+.venv/
+.DS_Store

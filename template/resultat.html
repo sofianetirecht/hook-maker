@@ -1,0 +1,522 @@
+<title>Hook Maker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Press+Start+2P&family=Rubik:wght@400;500;700;900&display=swap">
+<style>
+/* Concept : fiche de combat façon anime 90s. Bandeau nuit, scouter de puissance,
+   cartes à contour d'encre épais + ombre décalée, ligne de temps colorée par bloc.
+   Univers volontairement unique (crème + encre) : même rendu en thème clair ou sombre. */
+:root {
+  --creme: #FFF4DC;
+  --creme-2: #FBE7BE;
+  --papier: #FFFDF6;
+  --encre: #0A0A0F;
+  --nuit: #0B1640;
+  --orange: #FF8A00;
+  --orange-fonce: #E85D04;
+  --bleu: #2F9BFF;
+  --bleu-clair: #BFE3FF;
+  --jaune: #FFD60A;
+  --vert: #2BD96B;
+  --rouge: #E8202A;
+  --gris: #6B5E4B;
+  --f-titre: "Bangers", "Impact", "Arial Black", sans-serif;
+  --f-texte: "Rubik", "Helvetica Neue", Arial, sans-serif;
+  --f-pixel: "Press Start 2P", "Courier New", monospace;
+  --trait: 3px solid var(--encre);
+  --ombre: 5px 5px 0 var(--encre);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--creme);
+  background-image: radial-gradient(var(--creme-2) 1.2px, transparent 1.3px);
+  background-size: 14px 14px;
+  color: var(--encre);
+  font-family: var(--f-texte);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.wrap {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--f-titre); font-weight: 400; letter-spacing: .03em; margin: 0; text-wrap: balance; }
+.pixel { font-family: var(--f-pixel); font-size: 10px; letter-spacing: .04em; line-height: 1.6; }
+.ink { -webkit-text-stroke: 2px var(--encre); paint-order: stroke fill; }
+
+/* ---------- Bandeau ---------- */
+.top {
+  background: var(--nuit);
+  color: var(--creme);
+  border-bottom: var(--trait);
+  position: relative;
+  overflow: hidden;
+}
+.top::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(115deg, transparent 0 22px, rgba(255,138,0,.10) 22px 26px);
+}
+.top .wrap { padding-block: 22px 26px; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 1; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand .logo {
+  font-family: var(--f-titre); font-size: 28px; color: var(--orange);
+  -webkit-text-stroke: 1.5px var(--encre); paint-order: stroke fill;
+  text-shadow: 3px 3px 0 var(--encre);
+}
+.brand .tag { color: var(--jaune); }
+.top h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.02; color: var(--papier); text-shadow: 4px 4px 0 var(--encre); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font-family: var(--f-texte); font-weight: 700; font-size: 13px;
+  background: var(--papier); color: var(--encre);
+  border: 2px solid var(--encre); border-radius: 999px; padding: 3px 12px;
+}
+.chip.mode { background: var(--orange); }
+
+main .wrap { padding-block: 28px 56px; display: grid; gap: 28px; }
+
+/* ---------- Cartes ---------- */
+.card {
+  background: var(--papier);
+  border: var(--trait);
+  border-radius: 14px;
+  box-shadow: var(--ombre);
+  overflow: hidden;
+  min-width: 0;
+}
+.card-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 10px 18px; border-bottom: var(--trait);
+  background: var(--bleu); color: var(--papier);
+}
+.card-head h2 { font-size: 26px; color: var(--papier); -webkit-text-stroke: 1.5px var(--encre); paint-order: stroke fill; text-shadow: 2px 2px 0 var(--encre); }
+.card-head.orange { background: var(--orange); }
+.card-head.nuit { background: var(--nuit); }
+.card-head.jaune { background: var(--jaune); }
+.card-head.jaune h2 { color: var(--encre); -webkit-text-stroke: 0; text-shadow: none; }
+.card-body { padding: 18px; }
+
+/* ---------- Scouter ---------- */
+.hero { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 24px; }
+.scouter {
+  background: var(--nuit); color: var(--creme);
+  border: var(--trait); border-radius: 14px; box-shadow: var(--ombre);
+  padding: 18px; display: grid; gap: 12px; align-content: start; position: relative; overflow: hidden;
+}
+.scouter::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0 2px, transparent 2px 4px);
+}
+.scouter .label { color: var(--jaune); }
+.power {
+  font-family: var(--f-titre); font-size: clamp(56px, 9vw, 84px); line-height: .9;
+  color: var(--orange); -webkit-text-stroke: 2.5px var(--encre); paint-order: stroke fill;
+  text-shadow: 4px 4px 0 var(--encre); font-variant-numeric: tabular-nums;
+}
+.gauge { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; }
+.gauge span { height: 16px; border: 2px solid var(--encre); border-radius: 3px; background: #1C2A60; }
+.gauge span.on { background: var(--orange); }
+.gauge span.on.hot { background: var(--jaune); }
+.verdict { font-family: var(--f-titre); font-size: 26px; color: var(--papier); letter-spacing: .04em; }
+.scouter .scale { display: flex; justify-content: space-between; color: var(--bleu-clair); font-size: 8px; }
+
+.recap { display: grid; gap: 14px; align-content: start; }
+.recap dl { margin: 0; display: grid; gap: 10px; }
+.recap dt { color: var(--gris); }
+.recap dd { margin: 0; font-weight: 700; font-size: 17px; }
+.quote { font-weight: 700; font-size: 18px; border-left: 6px solid var(--orange); padding: 4px 0 4px 12px; background: var(--creme); border-radius: 0 8px 8px 0; }
+.quote.textuel { border-left-color: var(--jaune); }
+
+.align { display: flex; gap: 12px; align-items: flex-start; padding: 14px 18px; }
+.align .dot { flex: none; width: 30px; height: 30px; border: var(--trait); border-radius: 50%; display: grid; place-items: center; font-weight: 900; background: var(--vert); }
+.align.ko .dot { background: var(--rouge); color: var(--papier); }
+.align p { margin: 0; }
+
+/* ---------- Diagnostic ---------- */
+.diag { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.diag ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.diag li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; }
+.diag li::before { font-weight: 900; }
+.forces li::before { content: "✓"; color: #11883F; }
+.faibles li::before { content: "✕"; color: var(--rouge); }
+.recos li::before { content: "→"; color: var(--orange-fonce); }
+
+/* ---------- Hooks ---------- */
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.tab {
+  font: 700 14px var(--f-texte); cursor: pointer;
+  background: var(--papier); color: var(--encre);
+  border: 2px solid var(--encre); border-radius: 999px; padding: 5px 14px;
+}
+.tab[aria-selected="true"] { background: var(--encre); color: var(--jaune); }
+.tab:focus-visible, .btn:focus-visible, summary:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
+.hooks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.hook {
+  background: var(--papier); border: var(--trait); border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--encre); padding: 14px 16px; display: grid; gap: 10px; align-content: start; min-width: 0;
+  position: relative;
+}
+.hook.best { background: #FFF6CF; }
+.hook .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.badge { font-family: var(--f-texte); font-weight: 900; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; border: 2px solid var(--encre); border-radius: 4px; padding: 4px 6px; background: var(--bleu-clair); }
+.badge.textuel { background: var(--jaune); }
+.badge.best { background: var(--orange); color: var(--encre); }
+.hook .type { font-weight: 700; font-size: 13px; color: var(--gris); }
+.hook .texte { font-weight: 700; font-size: 19px; line-height: 1.35; margin: 0; }
+.hook .modele { font-size: 13px; color: var(--gris); margin: 0; }
+.hook.loading .texte { opacity: .45; }
+details summary { cursor: pointer; font-weight: 700; font-size: 14px; color: var(--orange-fonce); list-style: none; }
+details summary::-webkit-details-marker { display: none; }
+details summary::before { content: "▸ "; }
+details[open] summary::before { content: "▾ "; }
+details p { margin: 8px 0 0; font-size: 15px; }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.btn {
+  font: 700 13px var(--f-texte); cursor: pointer; color: var(--encre);
+  background: var(--papier); border: 2px solid var(--encre); border-radius: 8px; padding: 5px 10px;
+  box-shadow: 2px 2px 0 var(--encre); transition: transform .08s, box-shadow .08s;
+}
+.btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--encre); }
+.btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--encre); }
+.btn.go { background: var(--orange); }
+.btn[disabled] { opacity: .5; cursor: wait; }
+.btn.done { background: var(--vert); }
+.redo { display: none; }
+.has-sample .redo { display: inline-block; }
+.note { font-size: 13px; color: var(--gris); margin: 0; }
+
+/* ---------- Ligne de temps du script ---------- */
+.promesse { display: grid; gap: 6px; margin-bottom: 18px; }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; position: relative; }
+.timeline::before { content: ""; position: absolute; left: 21px; top: 8px; bottom: 8px; width: 4px; background: var(--encre); border-radius: 2px; }
+.step { display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 14px; position: relative; }
+.step .pin {
+  width: 46px; height: 46px; border: var(--trait); border-radius: 50%; display: grid; place-items: center;
+  font-family: var(--f-titre); font-size: 20px; background: var(--c, var(--bleu)); z-index: 1; box-shadow: 3px 3px 0 var(--encre);
+}
+.step .bloc { border: var(--trait); border-radius: 12px; background: var(--papier); overflow: hidden; min-width: 0; }
+.step .bloc-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding: 6px 12px; background: var(--c, var(--bleu)); border-bottom: var(--trait); }
+.step .bloc-head h3 { font-size: 22px; }
+.step .bloc-head .pixel { font-size: 8px; }
+.step .bloc-body { padding: 12px; display: grid; gap: 8px; }
+.step .bloc-body p { margin: 0; }
+.step .dit { font-size: 17px; font-weight: 500; white-space: pre-wrap; }
+.step .why { font-size: 14px; color: var(--gris); }
+.c-hook { --c: var(--orange); }
+.c-promesse { --c: var(--jaune); }
+.c-valeur { --c: var(--bleu-clair); }
+.c-boucle { --c: var(--bleu); }
+.c-cta { --c: var(--orange-fonce); }
+.c-resolution { --c: var(--vert); }
+
+.checks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.checks li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; align-items: start; }
+.checks .ok, .checks .ko { width: 24px; height: 24px; border: 2px solid var(--encre); border-radius: 6px; display: grid; place-items: center; font-weight: 900; font-size: 13px; background: var(--vert); }
+.checks .ko { background: var(--rouge); color: var(--papier); }
+.checks small { color: var(--gris); display: block; }
+
+footer .wrap { padding-block: 0 40px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; color: var(--gris); font-size: 13px; }
+
+@media (max-width: 760px) {
+  .hero, .diag, .hooks, .checks { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+
+<!-- ============ DONNÉES DE L'ANALYSE ============
+     Le skill remplace UNIQUEMENT le contenu de ce bloc JSON (schéma dans SKILL.md). -->
+<script type="application/json" id="hm-data">
+{
+  "exemple": true,
+  "mode": "video",
+  "titre": "3 outils gratuits pour coder avec l'IA",
+  "date": "19/10/2026",
+  "niche": { "nom": "Coder avec l'IA", "cible": "Entrepreneurs non-techniques qui veulent créer leurs outils sans développeur" },
+  "contexte": { "objectif": "Faire découvrir 3 outils gratuits et pousser vers la formation", "format": "Voix off + avatar", "type": "Éducatif" },
+  "source": { "label": "Reel Instagram · 0:58", "lien": "" },
+  "hook_actuel": { "oral": "Pas besoin de payer des applis pour tes vidéos.", "textuel": "3 outils gratuits", "timing": "0:00 → 0:03" },
+  "puissance": { "score": 4200, "verdict": "Correct, mais il te lâche à 3 s" },
+  "alignement": { "ok": false, "texte": "Le hook parle de vidéos, mais la moitié du reel parle de transcrire des calls. Une partie de ta cible décroche avant d'arriver à l'outil qui la concerne." },
+  "forces": [
+    "Le mot « payer » touche une vraie douleur de ta cible.",
+    "Phrase courte, dite en moins de 3 s.",
+    "Le chiffre 3 à l'écran promet un format rapide à consommer."
+  ],
+  "faiblesses": [
+    "Le hook ne couvre pas tout le contenu : les calls ne sont pas des vidéos.",
+    "Aucune promesse juste après : rien ne retient jusqu'à 10 s.",
+    "Aucune boucle ouverte entre les outils."
+  ],
+  "recommandations": [
+    "Élargis le hook à « tes contenus et tes calls ».",
+    "Ajoute une promesse dès 0:03 : « le 3e, personne ne le connaît ».",
+    "Place une boucle avant le 3e outil."
+  ],
+  "hooks": [
+    { "canal": "oral", "meilleur": true, "type": "Solution inutile", "modele": "#15 · Tu n'as pas besoin de [solution] pour [résultat]", "texte": "Tu n'as pas besoin de payer un seul abonnement pour monter tes vidéos et transcrire tes calls.", "pourquoi": "Il reprend la croyance de ta cible (il faut payer) et la casse. Il couvre les deux usages du reel." },
+    { "canal": "oral", "type": "Le test", "modele": "Modèle Fanny #2 · Personne n'en parle, mais j'ai testé…", "texte": "Personne n'en parle, mais j'ai remplacé 3 applis payantes par 3 outils gratuits pendant un mois.", "pourquoi": "Le test donne une preuve vécue. « Un mois » rend le résultat crédible." },
+    { "canal": "oral", "type": "Contre-intuitif", "modele": "#30 · Ça va peut-être te surprendre, mais…", "texte": "Ça va peut-être te surprendre, mais les meilleurs outils pour créer du contenu sont gratuits.", "pourquoi": "Il crée un écart avec ce que ta cible croit. Moins précis que le premier." },
+    { "canal": "textuel", "meilleur": true, "type": "Résultat chiffré", "modele": "Texte écran", "texte": "0 € d'abonnement. 3 outils. Vidéos + calls.", "pourquoi": "Il complète l'oral au lieu de le répéter, et il annonce les deux usages." },
+    { "canal": "textuel", "type": "Frustration", "modele": "Texte écran", "texte": "Arrête de payer CapCut Pro", "pourquoi": "Nomme un outil connu : la cible se reconnaît tout de suite." }
+  ],
+  "promesse": "Et le troisième, presque personne ne le connaît.",
+  "script": [
+    { "bloc": "HOOK", "temps": "0:00", "texte": "Tu n'as pas besoin de payer un seul abonnement pour monter tes vidéos et transcrire tes calls.", "note": "Couvre les deux usages du reel." },
+    { "bloc": "PROMESSE", "temps": "0:03", "texte": "Voici 3 outils gratuits. Et le troisième, presque personne ne le connaît.", "note": "Retient jusqu'au 3e outil." },
+    { "bloc": "VALEUR", "temps": "0:07", "texte": "Un : CapCut version navigateur. Pas de terminal, pas d'installation, tu montes direct.", "note": "Mot concret : « terminal »." },
+    { "bloc": "BOUCLE", "temps": "0:18", "texte": "Mais ça, c'est pour les vidéos. Pour tes calls, c'est là que ça devient intéressant.", "note": "Relance avant le changement de sujet." },
+    { "bloc": "VALEUR", "temps": "0:22", "texte": "Deux : Whisper. Tu glisses l'enregistrement de ton call, il te sort le texte en une minute.", "note": "" },
+    { "bloc": "BOUCLE", "temps": "0:34", "texte": "Sauf qu'il reste un problème : transformer ce texte en contenu.", "note": "" },
+    { "bloc": "CTA", "temps": "0:40", "texte": "Commente « OUTILS » et je t'envoie la liste avec les liens.", "note": "Avant la dernière info, quand l'attention est encore là." },
+    { "bloc": "RÉSOLUTION", "temps": "0:44", "texte": "Trois : Claude. Tu lui donnes ta transcription, il te sort 5 idées de reels.", "note": "Referme la promesse du début." }
+  ],
+  "verifications": [
+    { "regle": "Le hook couvre tout le contenu", "ok": true, "note": "Vidéos ET calls." },
+    { "regle": "Mots concrets", "ok": true, "note": "« abonnement », « calls », « terminal »." },
+    { "regle": "Pas de disclaimer", "ok": true, "note": "" },
+    { "regle": "Manque d'info + réponse utile", "ok": true, "note": "On veut savoir quels outils, et ça fait économiser." }
+  ]
+}
+</script>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="logo">HOOK MAKER</span><span class="pixel tag" id="t-date"></span></div>
+    <h1 id="t-titre"></h1>
+    <div class="chips" id="t-chips"></div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section class="hero" aria-label="Évaluation du hook">
+      <div class="scouter">
+        <span class="pixel label">Niveau de puissance</span>
+        <div class="power" id="t-score"></div>
+        <div class="gauge" id="t-gauge" aria-hidden="true"></div>
+        <div class="scale pixel"><span>0</span><span>5000</span><span>9000+</span></div>
+        <div class="verdict" id="t-verdict"></div>
+      </div>
+      <div class="card">
+        <div class="card-head nuit"><h2 id="t-recap-title">Le hook actuel</h2><span class="pixel" id="t-source" style="color:var(--jaune)"></span></div>
+        <div class="card-body recap" id="t-recap"></div>
+      </div>
+    </section>
+
+    <section class="card" id="s-align" aria-label="Alignement avec la niche"></section>
+
+    <section class="card" id="s-diag">
+      <div class="card-head orange"><h2>Diagnostic</h2></div>
+      <div class="card-body diag">
+        <div><h3 class="pixel" style="margin-bottom:12px">Forces</h3><ul class="forces" id="t-forces"></ul></div>
+        <div><h3 class="pixel" style="margin-bottom:12px">Faiblesses</h3><ul class="faibles" id="t-faibles"></ul></div>
+        <div><h3 class="pixel" style="margin-bottom:12px">À faire</h3><ul class="recos" id="t-recos"></ul></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Tes nouveaux hooks</h2>
+        <div class="tabs" role="tablist" aria-label="Type d'accroche">
+          <button class="tab" role="tab" id="tab-oral" aria-selected="true" data-canal="oral">Orales</button>
+          <button class="tab" role="tab" id="tab-textuel" aria-selected="false" data-canal="textuel">Texte écran</button>
+        </div>
+      </div>
+      <div class="card-body" style="display:grid;gap:14px">
+        <div class="hooks" id="t-hooks"></div>
+        <p class="note" id="t-sample-note">Pour une autre version d'un hook, demande-la dans la conversation.</p>
+      </div>
+    </section>
+
+    <section class="card" id="s-script">
+      <div class="card-head jaune"><h2 id="t-script-title">Le script réécrit</h2><button class="btn" id="copy-script" type="button">Copier tout le script</button></div>
+      <div class="card-body">
+        <ol class="timeline" id="t-script"></ol>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head nuit"><h2>Contrôle avant tournage</h2></div>
+      <div class="card-body"><ul class="checks" id="t-checks"></ul></div>
+    </section>
+  </div>
+</main>
+
+<footer><div class="wrap"><span>Hook Maker · structure HOOK → VALEUR → BOUCLE → CTA → RÉSOLUTION</span><span id="t-exemple"></span></div></footer>
+
+<script>
+(function () {
+  var D = JSON.parse(document.getElementById("hm-data").textContent);
+  var $ = function (id) { return document.getElementById(id); };
+  var el = function (tag, cls, txt) { var n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; };
+  var MODES = { video: "Vidéo", hook: "Hook", script: "Script", sujet: "Sujet" };
+  var BLOCS = { "HOOK": "hook", "PROMESSE": "promesse", "VALEUR": "valeur", "BOUCLE": "boucle", "CTA": "cta", "RÉSOLUTION": "resolution", "RESOLUTION": "resolution" };
+
+  function copy(text, btn) {
+    var done = function () { var t = btn.textContent; btn.textContent = "Copié !"; btn.classList.add("done"); setTimeout(function () { btn.textContent = t; btn.classList.remove("done"); }, 1400); };
+    try {
+      navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+    } catch (e) { fallback(text); done(); }
+  }
+  function fallback(text) {
+    var ta = el("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove();
+  }
+
+  // ---- En-tête
+  $("t-titre").textContent = D.titre || "Analyse";
+  $("t-date").textContent = D.date || "";
+  var chips = $("t-chips");
+  chips.appendChild(el("span", "chip mode", "Mode " + (MODES[D.mode] || D.mode)));
+  if (D.niche && D.niche.nom) chips.appendChild(el("span", "chip", D.niche.nom));
+  if (D.contexte) ["format", "type"].forEach(function (k) { if (D.contexte[k]) chips.appendChild(el("span", "chip", D.contexte[k])); });
+
+  // ---- Scouter
+  var P = D.puissance || {};
+  var score = Math.max(0, Math.round(P.score || 0));
+  $("t-score").textContent = score > 9000 ? "+ DE 9000 !" : score.toLocaleString("fr-FR");
+  $("t-verdict").textContent = P.verdict || "";
+  var g = $("t-gauge"), lit = Math.min(10, Math.round(score / 900));
+  for (var i = 0; i < 10; i++) { var s = el("span"); if (i < lit) s.className = "on" + (i >= 8 ? " hot" : ""); g.appendChild(s); }
+
+  // ---- Récap
+  var recap = $("t-recap"), H = D.hook_actuel;
+  if (D.source && D.source.label) $("t-source").textContent = D.source.label;
+  if (H && (H.oral || H.textuel)) {
+    if (H.oral) { recap.appendChild(el("span", "pixel", "Oral" + (H.timing ? " · " + H.timing : ""))); recap.appendChild(el("p", "quote", "« " + H.oral + " »")); }
+    if (H.textuel) { recap.appendChild(el("span", "pixel", "Texte écran")); recap.appendChild(el("p", "quote textuel", "« " + H.textuel + " »")); }
+  } else {
+    $("t-recap-title").textContent = D.mode === "sujet" ? "Ton sujet" : "Ton contenu";
+  }
+  var dl = el("dl");
+  [["Objectif", D.contexte && D.contexte.objectif], ["Cible", D.niche && D.niche.cible], ["Sujet", D.sujet]].forEach(function (r) {
+    if (!r[1]) return; dl.appendChild(el("dt", "pixel", r[0])); dl.appendChild(el("dd", "", r[1]));
+  });
+  recap.appendChild(dl);
+
+  // ---- Alignement
+  var A = D.alignement, sa = $("s-align");
+  if (A && A.texte) {
+    var box = el("div", "align" + (A.ok ? "" : " ko"));
+    box.appendChild(el("span", "dot", A.ok ? "✓" : "!"));
+    var t = el("div"); t.appendChild(el("span", "pixel", A.ok ? "Aligné avec ta niche" : "Décalage avec ta niche")); t.appendChild(el("p", "", A.texte));
+    box.appendChild(t); sa.appendChild(box);
+  } else sa.hidden = true;
+
+  // ---- Diagnostic
+  var fill = function (id, arr) { (arr || []).forEach(function (x) { $(id).appendChild(el("li", "", x)); }); };
+  fill("t-forces", D.forces); fill("t-faibles", D.faiblesses); fill("t-recos", D.recommandations);
+  if (!(D.forces || []).length && !(D.faiblesses || []).length && !(D.recommandations || []).length) $("s-diag").hidden = true;
+
+  // ---- Hooks
+  var hooksBox = $("t-hooks");
+  var cards = [];
+  (D.hooks || []).forEach(function (h, idx) {
+    var c = el("article", "hook" + (h.meilleur ? " best" : ""));
+    c.dataset.canal = h.canal === "textuel" ? "textuel" : "oral";
+    var meta = el("div", "meta");
+    meta.appendChild(el("span", "badge" + (c.dataset.canal === "textuel" ? " textuel" : ""), c.dataset.canal === "textuel" ? "Texte écran" : "Oral"));
+    if (h.meilleur) meta.appendChild(el("span", "badge best", "Recommandé"));
+    if (h.type) meta.appendChild(el("span", "type", h.type));
+    c.appendChild(meta);
+    var txt = el("p", "texte", h.texte); c.appendChild(txt);
+    if (h.modele) c.appendChild(el("p", "modele", h.modele));
+    var det = el("details"); det.appendChild(el("summary", "", "Voir pourquoi"));
+    var why = el("p", "", h.pourquoi || ""); det.appendChild(why); c.appendChild(det);
+    var act = el("div", "actions");
+    var cp = el("button", "btn go", "Copier"); cp.type = "button"; cp.onclick = function () { copy(txt.textContent, cp); };
+    act.appendChild(cp);
+    [["autre", "Autre version"], ["agressif", "Plus percutant"], ["court", "Plus court"]].forEach(function (v) {
+      var b = el("button", "btn redo", v[1]); b.type = "button"; b.dataset.variant = v[0];
+      b.onclick = function () { redo(idx, v[0], c, txt, why, act); };
+      act.appendChild(b);
+    });
+    c.appendChild(act);
+    hooksBox.appendChild(c); cards.push(c);
+  });
+  function showCanal(canal) {
+    document.querySelectorAll(".tab").forEach(function (t) { t.setAttribute("aria-selected", String(t.dataset.canal === canal)); });
+    cards.forEach(function (c) { c.hidden = c.dataset.canal !== canal; });
+  }
+  document.querySelectorAll(".tab").forEach(function (t) { t.onclick = function () { showCanal(t.dataset.canal); }; });
+  if (!cards.some(function (c) { return c.dataset.canal === "textuel"; })) $("tab-textuel").hidden = true;
+  showCanal("oral");
+
+  // ---- Script / structure
+  var sc = D.script || [], ol = $("t-script");
+  if (!sc.length) $("s-script").hidden = true;
+  if (D.mode === "sujet") $("t-script-title").textContent = "La structure à tourner";
+  if (D.mode === "hook") $("t-script-title").textContent = "Le début conseillé";
+  var n = 0;
+  sc.forEach(function (b) {
+    var key = BLOCS[(b.bloc || "").toUpperCase()] || "valeur"; n++;
+    var li = el("li", "step c-" + key);
+    li.appendChild(el("span", "pin", String(n)));
+    var bloc = el("div", "bloc");
+    var head = el("div", "bloc-head");
+    head.appendChild(el("h3", "", b.bloc));
+    var right = el("div", "actions");
+    if (b.temps) right.appendChild(el("span", "pixel", b.temps));
+    var cb = el("button", "btn", "Copier"); cb.type = "button"; cb.onclick = function () { copy(b.texte, cb); };
+    right.appendChild(cb); head.appendChild(right); bloc.appendChild(head);
+    var body = el("div", "bloc-body");
+    body.appendChild(el("p", "dit", b.texte));
+    if (b.note) body.appendChild(el("p", "why", b.note));
+    bloc.appendChild(body); li.appendChild(bloc); ol.appendChild(li);
+  });
+  $("copy-script").onclick = function () {
+    copy(sc.map(function (b) { return "[" + b.bloc + "] " + b.texte; }).join("\n\n"), $("copy-script"));
+  };
+
+  // ---- Vérifications
+  var ck = $("t-checks");
+  (D.verifications || []).forEach(function (v) {
+    var li = el("li"); li.appendChild(el("span", v.ok ? "ok" : "ko", v.ok ? "✓" : "✕"));
+    var t = el("div"); t.appendChild(el("strong", "", v.regle)); if (v.note) t.appendChild(el("small", "", v.note));
+    li.appendChild(t); ck.appendChild(li);
+  });
+  if (D.exemple) $("t-exemple").textContent = "Données d'exemple";
+
+  // ---- Refaire un hook avec Claude (capability sample)
+  var sample = null;
+  var VARIANTS = {
+    autre: "Propose une version différente, avec un autre angle ou un autre modèle de hook.",
+    agressif: "Rends-le plus percutant : plus direct, tension plus forte, sans devenir racoleur.",
+    court: "Raccourcis-le : il doit se dire en moins de 2 secondes."
+  };
+  var REGLES = "Règles : le hook doit couvrir TOUT le contenu de la vidéo ; mots concrets que le spectateur visualise ; aucun disclaimer ; il crée un manque d'information ET fait sentir que la réponse sera utile. Parle comme la cible, en français, tutoiement.";
+  function redo(idx, variant, card, txt, why, act) {
+    if (!sample) return;
+    var h = D.hooks[idx];
+    var prompt = "Tu es Hook Maker, expert des hooks de reels Instagram (méthode @growithfanny).\n" + REGLES +
+      "\n\nNiche : " + JSON.stringify(D.niche || {}) +
+      "\nContexte : " + JSON.stringify(D.contexte || {}) +
+      "\nSujet de la vidéo : " + (D.titre || "") +
+      (sc.length ? "\nScript (résumé) : " + sc.map(function (b) { return b.bloc + ": " + b.texte; }).join(" | ").slice(0, 3000) : "") +
+      "\n\nHook actuel (" + (h.canal === "textuel" ? "texte à l'écran" : "oral") + ") : « " + txt.textContent + " »\n" +
+      VARIANTS[variant] +
+      '\n\nRéponds uniquement en JSON : {"texte": "...", "pourquoi": "une ou deux phrases"}';
+    var btns = act.querySelectorAll("button"); btns.forEach(function (b) { b.disabled = true; });
+    card.classList.add("loading"); var old = txt.textContent; txt.textContent = "Claude réfléchit…";
+    sample.json(prompt, { cache: false }).then(function (r) {
+      if (r && r.texte) { txt.textContent = String(r.texte); if (r.pourquoi) why.textContent = String(r.pourquoi); }
+      else txt.textContent = old;
+    }, function (e) {
+      txt.textContent = old;
+      if (e && (e.code === "not_granted" || e.code === "sampling_disabled")) { document.body.classList.remove("has-sample"); $("t-sample-note").hidden = false; }
+    }).then(function () { card.classList.remove("loading"); btns.forEach(function (b) { b.disabled = false; }); });
+  }
+  if (window.claude && window.claude.use) {
+    window.claude.use("sample").then(function (s) {
+      if (!s) return;
+      sample = s; document.body.classList.add("has-sample"); $("t-sample-note").hidden = true;
+    }, function () {});
+  }
+})();
+</script>
