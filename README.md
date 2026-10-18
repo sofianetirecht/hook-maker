@@ -158,10 +158,6 @@ export HOOK_MAKER_MODEL=medium
 - Whisper écorche les noms propres et certains mots. L'analyse n'en souffre pas, mais relis le script réécrit.
 - Les boutons « Autre version » sur la page ne marchent que dans l'Artifact publié (pas dans la version ouverte dans le navigateur).
 
-## Crédits
-
-La méthode (hook, promesse, boucles ouvertes, CTA, résolution) et les modèles de hooks viennent du travail de [@growithfanny](https://www.instagram.com/growithfanny/).
-
 ## Licence
 
-Le code est sous licence [MIT](LICENSE). Les contenus de `hooks.md` et `structure-script-video.md` repris de @growithfanny restent la propriété de leur autrice.
+[MIT](LICENSE).
