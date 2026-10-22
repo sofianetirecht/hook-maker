@@ -1,0 +1,594 @@
+
+/* ---------- Studio : formulaire + historique ---------- */
+.studio { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: 24px; align-items: start; }
+.form { display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label, .field .lbl { font-family: var(--f-pixel); font-size: 9px; letter-spacing: .04em; color: var(--gris); }
+.field textarea, .field input, .field select {
+  font: 500 16px var(--f-texte); color: var(--encre); background: var(--papier);
+  border: 2px solid var(--encre); border-radius: 10px; padding: 10px 12px; width: 100%; min-width: 0;
+}
+.field textarea { min-height: 130px; resize: vertical; line-height: 1.45; }
+.field textarea:focus, .field input:focus, .field select:focus { outline: 3px solid var(--bleu); outline-offset: 1px; }
+.row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.modes { display: flex; gap: 8px; flex-wrap: wrap; }
+.modes .tab { font-size: 15px; padding: 7px 16px; }
+.hint { font-size: 13px; color: var(--gris); margin: 0; }
+.go-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.btn.big { font-family: var(--f-titre); font-size: 24px; letter-spacing: .05em; padding: 6px 22px; box-shadow: 4px 4px 0 var(--encre); }
+.status { font-weight: 700; font-size: 14px; }
+.status.err { color: var(--rouge); }
+.busy .status::after { content: ""; display: inline-block; width: 10px; height: 10px; margin-left: 8px; border: 2px solid var(--encre); border-radius: 2px; background: var(--orange); animation: blink .8s steps(2) infinite; vertical-align: middle; }
+@keyframes blink { 50% { background: var(--jaune); } }
+.histo { display: grid; gap: 10px; }
+.histo ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-height: 520px; overflow-y: auto; }
+.histo li button {
+  width: 100%; text-align: left; cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px;
+  font: 500 14px var(--f-texte); color: var(--encre); background: var(--papier);
+  border: 2px solid var(--encre); border-radius: 10px; padding: 8px 10px;
+}
+.histo li button[aria-current="true"] { background: #FFF6CF; box-shadow: 3px 3px 0 var(--encre); }
+.histo li button:focus-visible { outline: 3px solid var(--bleu); outline-offset: 2px; }
+.histo .h-t { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.histo .h-s { font-family: var(--f-pixel); font-size: 9px; color: var(--orange-fonce); align-self: center; }
+.histo .h-m { grid-column: 1 / -1; font-size: 12px; color: var(--gris); }
+.res-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.res-head h2 { font-size: clamp(30px, 5vw, 44px); line-height: 1.05; text-shadow: 3px 3px 0 var(--creme-2); }
+.res-head .chips { margin-top: 6px; }
+.ex-flag { background: var(--jaune); border: 2px solid var(--encre); border-radius: 6px; padding: 3px 8px; font-weight: 900; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.result { display: grid; gap: 28px; }
+@media (max-width: 860px) { .studio, .row3 { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { .busy .status::after { animation: none; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="logo">HOOK MAKER</span><span class="pixel tag">STUDIO</span></div>
+    <h1>Trouve le hook qui retient</h1>
+    <p style="margin:0;color:var(--bleu-clair);max-width:60ch">Donne un lien de reel, un hook, un script ou un simple sujet. Claude le note sur 10 000, te propose 5 hooks et réécrit le script, selon ta niche.</p>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <section class="studio" aria-label="Nouvelle analyse">
+      <div class="card">
+        <div class="card-head orange"><h2>Nouvelle analyse</h2></div>
+        <form class="card-body form" id="f" novalidate>
+          <div class="field">
+            <span class="lbl">Ce que tu as</span>
+            <div class="modes" role="radiogroup" aria-label="Mode">
+              <button type="button" class="tab" role="radio" data-mode="video" aria-selected="false">Une vidéo</button>
+              <button type="button" class="tab" role="radio" data-mode="hook" aria-selected="true">Un hook</button>
+              <button type="button" class="tab" role="radio" data-mode="script" aria-selected="false">Un script</button>
+              <button type="button" class="tab" role="radio" data-mode="sujet" aria-selected="false">Un sujet</button>
+            </div>
+          </div>
+          <div class="field">
+            <label for="in-texte" id="lbl-texte">Ton hook</label>
+            <textarea id="in-texte" placeholder="Ex. : Pas besoin de payer des applis pour tes vidéos."></textarea>
+            <p class="hint" id="hint-texte">Une ou deux phrases : le début de ta vidéo.</p>
+            <p class="hint" id="no-host" hidden style="color:var(--rouge)">Le mode vidéo a besoin de l'app Claude desktop sur ton Mac, avec le serveur local « hook-maker » branché. Sinon, colle la transcription en mode « Un script ».</p>
+          </div>
+          <details id="box-transcript" hidden>
+            <summary>Voir la transcription</summary>
+            <p class="dit" id="transcript" style="white-space:pre-wrap;font-size:14px;max-height:260px;overflow:auto"></p>
+          </details>
+          <div class="field">
+            <label for="in-niche">Niche</label>
+            <select id="in-niche"></select>
+          </div>
+          <div class="field" id="box-niche-libre" hidden>
+            <label for="in-niche-libre">Décris ta niche</label>
+            <textarea id="in-niche-libre" style="min-height:90px" placeholder="À qui tu parles, ce qu'ils vivent, pensent, veulent, et où mène ton CTA."></textarea>
+          </div>
+          <div class="row3">
+            <div class="field">
+              <label for="in-objectif">Objectif</label>
+              <input id="in-objectif" type="text" placeholder="Abonnés, ventes, leads…">
+            </div>
+            <div class="field">
+              <label for="in-format">Format</label>
+              <select id="in-format">
+                <option value="">Laisser Claude choisir</option>
+                <option>Face caméra</option>
+                <option>Face caméra sans accroche orale</option>
+                <option>Voix off</option>
+                <option>B-roll</option>
+                <option>Cuts rapides</option>
+                <option>Carrousel</option>
+                <option>Avatar</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="in-type">Type</label>
+              <select id="in-type">
+                <option value="">Laisser Claude choisir</option>
+                <option>Éducatif</option>
+                <option>Storytelling</option>
+                <option>Autorité</option>
+              </select>
+            </div>
+          </div>
+          <div class="go-row" id="go-row">
+            <button class="btn go big" id="go" type="submit">Analyser</button>
+            <button class="btn" id="stop" type="button" hidden>Arrêter</button>
+            <span class="status" id="status" role="status"></span>
+          </div>
+          <p class="hint" id="no-sample" hidden>Claude n'est pas disponible ici. Ouvre cette page depuis claude.ai, connecté à ton compte, et autorise-la à utiliser Claude.</p>
+        </form>
+      </div>
+      <aside class="card histo" aria-label="Historique">
+        <div class="card-head nuit"><h2>Historique</h2></div>
+        <div class="card-body" style="display:grid;gap:10px">
+          <ul id="histo"></ul>
+          <p class="hint" id="histo-empty">Tes analyses apparaîtront ici. Elles restent privées.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="result" id="result" aria-label="Résultat">
+      <div class="res-head">
+        <div>
+          <span class="pixel" id="t-date" style="color:var(--gris)"></span>
+          <h2 id="t-titre"></h2>
+          <div class="chips" id="t-chips"></div>
+        </div>
+        <span class="ex-flag" id="t-exemple" hidden>Exemple</span>
+      </div>
+
+      <section class="hero" aria-label="Évaluation du hook">
+        <div class="scouter">
+          <span class="pixel label">Niveau de puissance</span>
+          <div class="power" id="t-score"></div>
+          <div class="gauge" id="t-gauge" aria-hidden="true"></div>
+          <div class="scale pixel"><span>0</span><span>5000</span><span>9000+</span></div>
+          <div class="verdict" id="t-verdict"></div>
+        </div>
+        <div class="card">
+          <div class="card-head nuit"><h2 id="t-recap-title">Le hook actuel</h2><span class="pixel" id="t-source" style="color:var(--jaune)"></span></div>
+          <div class="card-body recap" id="t-recap"></div>
+        </div>
+      </section>
+
+      <section class="card" id="s-align" aria-label="Alignement avec la niche"></section>
+
+      <section class="card" id="s-diag">
+        <div class="card-head orange"><h2>Diagnostic</h2></div>
+        <div class="card-body diag">
+          <div><h3 class="pixel" style="margin-bottom:12px">Forces</h3><ul class="forces" id="t-forces"></ul></div>
+          <div><h3 class="pixel" style="margin-bottom:12px">Faiblesses</h3><ul class="faibles" id="t-faibles"></ul></div>
+          <div><h3 class="pixel" style="margin-bottom:12px">À faire</h3><ul class="recos" id="t-recos"></ul></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Tes nouveaux hooks</h2>
+          <div class="tabs" role="tablist" aria-label="Type d'accroche">
+            <button class="tab" role="tab" id="tab-oral" aria-selected="true" data-canal="oral" type="button">Orales</button>
+            <button class="tab" role="tab" id="tab-textuel" aria-selected="false" data-canal="textuel" type="button">Texte écran</button>
+          </div>
+        </div>
+        <div class="card-body" style="display:grid;gap:14px">
+          <div class="hooks" id="t-hooks"></div>
+        </div>
+      </section>
+
+      <section class="card" id="s-script">
+        <div class="card-head jaune"><h2 id="t-script-title">Le script réécrit</h2><button class="btn" id="copy-script" type="button">Copier tout le script</button></div>
+        <div class="card-body">
+          <ol class="timeline" id="t-script"></ol>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head nuit"><h2>Contrôle avant tournage</h2></div>
+        <div class="card-body"><ul class="checks" id="t-checks"></ul></div>
+      </section>
+    </section>
+  </div>
+</main>
+
+<footer><div class="wrap"><span>Hook Maker · HOOK → VALEUR → BOUCLE → CTA → RÉSOLUTION</span><span>Tourne sur ton abonnement Claude</span></div></footer>
+
+<script>
+(function () {
+  var KB = /*__KB__*/null;
+  var EXEMPLE = /*__EXEMPLE__*/null;
+  var $ = function (id) { return document.getElementById(id); };
+  var el = function (tag, cls, txt) { var n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; };
+  var clear = function (n) { while (n.firstChild) n.removeChild(n.firstChild); };
+  var MODES = { video: "Vidéo", hook: "Hook", script: "Script", sujet: "Sujet" };
+  var BLOCS = { "HOOK": "hook", "PROMESSE": "promesse", "VALEUR": "valeur", "BOUCLE": "boucle", "CTA": "cta", "RÉSOLUTION": "resolution", "RESOLUTION": "resolution" };
+  var sample = null, mcp = null, hostKo = false;
+  var HOST = "host:hook-maker";
+  var D = null;
+
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+
+  function copy(text, btn) {
+    var done = function () { var t = btn.textContent; btn.textContent = "Copié !"; btn.classList.add("done"); setTimeout(function () { btn.textContent = t; btn.classList.remove("done"); }, 1400); };
+    try { navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); }); }
+    catch (e) { fallback(text); done(); }
+  }
+  function fallback(text) {
+    var ta = el("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select(); try { document.execCommand("copy"); } catch (e) {} ta.remove();
+  }
+
+  // ================= RENDU DU RÉSULTAT =================
+  function render(data) {
+    D = data;
+    ["t-chips", "t-gauge", "t-recap", "s-align", "t-forces", "t-faibles", "t-recos", "t-hooks", "t-script", "t-checks"].forEach(function (id) { clear($(id)); });
+    $("t-titre").textContent = D.titre || "Analyse";
+    $("t-date").textContent = D.date || "";
+    $("t-exemple").hidden = !D.exemple;
+    var chips = $("t-chips");
+    chips.appendChild(el("span", "chip mode", "Mode " + (MODES[D.mode] || D.mode || "")));
+    if (D.niche && D.niche.nom) chips.appendChild(el("span", "chip", D.niche.nom));
+    if (D.contexte) ["format", "type"].forEach(function (k) { if (D.contexte[k]) chips.appendChild(el("span", "chip", D.contexte[k])); });
+
+    var P = D.puissance || {};
+    var score = Math.max(0, Math.round(Number(P.score) || 0));
+    $("t-score").textContent = score > 9000 ? "+ DE 9000 !" : score.toLocaleString("fr-FR");
+    $("t-verdict").textContent = P.verdict || "";
+    var g = $("t-gauge"), lit = Math.min(10, Math.round(score / 900));
+    for (var i = 0; i < 10; i++) { var s = el("span"); if (i < lit) s.className = "on" + (i >= 8 ? " hot" : ""); g.appendChild(s); }
+
+    var recap = $("t-recap"), H = D.hook_actuel;
+    $("t-source").textContent = (D.source && D.source.label) || "";
+    $("t-recap-title").textContent = "Le hook actuel";
+    if (H && (H.oral || H.textuel)) {
+      if (H.oral) { recap.appendChild(el("span", "pixel", "Oral" + (H.timing ? " · " + H.timing : ""))); recap.appendChild(el("p", "quote", "« " + H.oral + " »")); }
+      if (H.textuel) { recap.appendChild(el("span", "pixel", "Texte écran")); recap.appendChild(el("p", "quote textuel", "« " + H.textuel + " »")); }
+    } else {
+      $("t-recap-title").textContent = D.mode === "sujet" ? "Ton sujet" : "Ton contenu";
+    }
+    var dl = el("dl");
+    [["Objectif", D.contexte && D.contexte.objectif], ["Cible", D.niche && D.niche.cible], ["Sujet", D.sujet]].forEach(function (r) {
+      if (!r[1]) return; dl.appendChild(el("dt", "pixel", r[0])); dl.appendChild(el("dd", "", r[1]));
+    });
+    recap.appendChild(dl);
+
+    var A = D.alignement, sa = $("s-align");
+    if (A && A.texte) {
+      sa.hidden = false;
+      var box = el("div", "align" + (A.ok ? "" : " ko"));
+      box.appendChild(el("span", "dot", A.ok ? "✓" : "!"));
+      var t = el("div"); t.appendChild(el("span", "pixel", A.ok ? "Aligné avec ta niche" : "Décalage avec ta niche")); t.appendChild(el("p", "", A.texte));
+      box.appendChild(t); sa.appendChild(box);
+    } else sa.hidden = true;
+
+    var fill = function (id, arr) { (arr || []).forEach(function (x) { $(id).appendChild(el("li", "", String(x))); }); };
+    fill("t-forces", D.forces); fill("t-faibles", D.faiblesses); fill("t-recos", D.recommandations);
+    $("s-diag").hidden = !(D.forces || []).length && !(D.faiblesses || []).length && !(D.recommandations || []).length;
+
+    var hooksBox = $("t-hooks"), cards = [];
+    (D.hooks || []).forEach(function (h, idx) {
+      var c = el("article", "hook" + (h.meilleur ? " best" : ""));
+      c.dataset.canal = h.canal === "textuel" ? "textuel" : "oral";
+      var meta = el("div", "meta");
+      meta.appendChild(el("span", "badge" + (c.dataset.canal === "textuel" ? " textuel" : ""), c.dataset.canal === "textuel" ? "Texte écran" : "Oral"));
+      if (h.meilleur) meta.appendChild(el("span", "badge best", "Recommandé"));
+      if (h.type) meta.appendChild(el("span", "type", h.type));
+      c.appendChild(meta);
+      var txt = el("p", "texte", h.texte); c.appendChild(txt);
+      if (h.modele) c.appendChild(el("p", "modele", h.modele));
+      var det = el("details"); det.appendChild(el("summary", "", "Voir pourquoi"));
+      var why = el("p", "", h.pourquoi || ""); det.appendChild(why); c.appendChild(det);
+      var act = el("div", "actions");
+      var cp = el("button", "btn go", "Copier"); cp.type = "button"; cp.onclick = function () { copy(txt.textContent, cp); };
+      act.appendChild(cp);
+      [["autre", "Autre version"], ["agressif", "Plus percutant"], ["court", "Plus court"]].forEach(function (v) {
+        var b = el("button", "btn redo", v[1]); b.type = "button";
+        b.onclick = function () { redo(idx, v[0], c, txt, why, act); };
+        act.appendChild(b);
+      });
+      c.appendChild(act);
+      hooksBox.appendChild(c); cards.push(c);
+    });
+    function showCanal(canal) {
+      document.querySelectorAll("[data-canal]").forEach(function (t) { t.setAttribute("aria-selected", String(t.dataset.canal === canal)); });
+      cards.forEach(function (c) { c.hidden = c.dataset.canal !== canal; });
+    }
+    document.querySelectorAll("button[data-canal]").forEach(function (t) { t.onclick = function () { showCanal(t.dataset.canal); }; });
+    $("tab-textuel").hidden = !cards.some(function (c) { return c.dataset.canal === "textuel"; });
+    showCanal("oral");
+
+    var sc = D.script || [], ol = $("t-script");
+    $("s-script").hidden = !sc.length;
+    $("t-script-title").textContent = D.mode === "sujet" ? "La structure à tourner" : D.mode === "hook" ? "Le début conseillé" : "Le script réécrit";
+    sc.forEach(function (b, n) {
+      var key = BLOCS[String(b.bloc || "").toUpperCase()] || "valeur";
+      var li = el("li", "step c-" + key);
+      li.appendChild(el("span", "pin", String(n + 1)));
+      var bloc = el("div", "bloc"), head = el("div", "bloc-head");
+      head.appendChild(el("h3", "", b.bloc));
+      var right = el("div", "actions");
+      if (b.temps) right.appendChild(el("span", "pixel", b.temps));
+      var cb = el("button", "btn", "Copier"); cb.type = "button"; cb.onclick = function () { copy(b.texte, cb); };
+      right.appendChild(cb); head.appendChild(right); bloc.appendChild(head);
+      var body = el("div", "bloc-body");
+      body.appendChild(el("p", "dit", b.texte));
+      if (b.note) body.appendChild(el("p", "why", b.note));
+      bloc.appendChild(body); li.appendChild(bloc); ol.appendChild(li);
+    });
+    $("copy-script").onclick = function () { copy(sc.map(function (b) { return "[" + b.bloc + "] " + b.texte; }).join("\n\n"), $("copy-script")); };
+
+    (D.verifications || []).forEach(function (v) {
+      var li = el("li"); li.appendChild(el("span", v.ok ? "ok" : "ko", v.ok ? "✓" : "✕"));
+      var t2 = el("div"); t2.appendChild(el("strong", "", v.regle)); if (v.note) t2.appendChild(el("small", "", v.note));
+      li.appendChild(t2); $("t-checks").appendChild(li);
+    });
+  }
+
+  // ================= RÉÉCRIRE UN HOOK =================
+  var VARIANTS = {
+    autre: "Propose une version différente, avec un autre angle ou un autre modèle de hook.",
+    agressif: "Rends-le plus percutant : plus direct, tension plus forte, sans devenir racoleur.",
+    court: "Raccourcis-le : il doit se dire en moins de 2 secondes."
+  };
+  function redo(idx, variant, card, txt, why, act) {
+    if (!sample) return;
+    var h = D.hooks[idx], sc = D.script || [];
+    var prompt = "Tu es Hook Maker, expert des hooks de reels Instagram et TikTok.\n\n# Règles maison (prioritaires)\n" + KB.regles +
+      "\n\nNiche : " + JSON.stringify(D.niche || {}) +
+      "\nContexte : " + JSON.stringify(D.contexte || {}) +
+      "\nSujet de la vidéo : " + (D.titre || "") +
+      (sc.length ? "\nScript (résumé) : " + sc.map(function (b) { return b.bloc + ": " + b.texte; }).join(" | ").slice(0, 3000) : "") +
+      "\n\nHook actuel (" + (h.canal === "textuel" ? "texte à l'écran" : "oral") + ") : « " + txt.textContent + " »\n" + VARIANTS[variant] +
+      "\nFrançais, tutoiement, avec les mots de la cible." +
+      '\n\nRéponds uniquement en JSON : {"texte": "...", "pourquoi": "une ou deux phrases"}';
+    var btns = act.querySelectorAll("button"); btns.forEach(function (b) { b.disabled = true; });
+    card.classList.add("loading"); var old = txt.textContent; txt.textContent = "Claude réfléchit…";
+    sample.json(prompt, { cache: false }).then(function (r) {
+      if (r && r.texte) {
+        txt.textContent = String(r.texte); if (r.pourquoi) why.textContent = String(r.pourquoi);
+        h.texte = String(r.texte); if (r.pourquoi) h.pourquoi = String(r.pourquoi);
+        if (!D.exemple) saveCurrent();
+      } else txt.textContent = old;
+    }, function (e) {
+      txt.textContent = old;
+      if (e && (e.code === "not_granted" || e.code === "sampling_disabled")) noSample();
+    }).then(function () { card.classList.remove("loading"); btns.forEach(function (b) { b.disabled = false; }); });
+  }
+
+  // ================= FORMULAIRE =================
+  var mode = "hook";
+  var MODE_UI = {
+    video: { lbl: "Lien du reel ou fichier", ph: "https://www.instagram.com/reel/…  ou  /Users/sofianetirecht/Movies/ma-video.mp4", hint: "Instagram, TikTok, YouTube Shorts, ou le chemin d'une vidéo sur ton Mac. Téléchargement et transcription se font sur ton Mac." },
+    hook: { lbl: "Ton hook", ph: "Ex. : Pas besoin de payer des applis pour tes vidéos.", hint: "Une ou deux phrases : le début de ta vidéo." },
+    script: { lbl: "Ton script", ph: "Colle ton script complet, ou la transcription de ta vidéo.", hint: "Découpé ou non. Une transcription de reel marche aussi." },
+    sujet: { lbl: "Ton sujet", ph: "Ex. : une vidéo sur les 3 erreurs qui empêchent d'avoir des avis Google.", hint: "Une idée, un thème : Claude te donne la structure et les hooks." }
+  };
+  function setMode(m) {
+    mode = m;
+    document.querySelectorAll("[data-mode]").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.mode === m)); });
+    var u = MODE_UI[m]; $("lbl-texte").textContent = u.lbl; $("in-texte").placeholder = u.ph; $("hint-texte").textContent = u.hint;
+    $("in-texte").style.minHeight = m === "script" ? "240px" : m === "video" ? "70px" : "130px";
+    $("no-host").hidden = !(m === "video" && hostKo);
+    $("box-transcript").hidden = !(m === "video" && $("transcript").textContent);
+    store("hm-mode", m);
+  }
+  document.querySelectorAll("[data-mode]").forEach(function (b) { b.onclick = function () { setMode(b.dataset.mode); }; });
+
+  var sel = $("in-niche");
+  KB.niches.forEach(function (n, i) { var o = el("option", "", n.nom); o.value = String(i); sel.appendChild(o); });
+  var oLibre = el("option", "", "Autre niche (je la décris)"); oLibre.value = "libre"; sel.appendChild(oLibre);
+  sel.onchange = function () { $("box-niche-libre").hidden = sel.value !== "libre"; store("hm-niche", sel.value); };
+
+  // brouillons (confort, par navigateur)
+  ["in-texte", "in-niche-libre", "in-objectif", "in-format", "in-type"].forEach(function (id) {
+    var v = store("hm-" + id); if (v) $(id).value = v;
+    $(id).addEventListener("input", function () { store("hm-" + id, $(id).value); });
+    $(id).addEventListener("change", function () { store("hm-" + id, $(id).value); });
+  });
+  var savedNiche = store("hm-niche"); if (savedNiche && (savedNiche === "libre" || KB.niches[+savedNiche])) sel.value = savedNiche;
+  $("box-niche-libre").hidden = sel.value !== "libre";
+  var savedMode = store("hm-mode"); setMode(MODE_UI[savedMode] ? savedMode : "hook");
+
+  function buildPrompt(texte, vid) {
+    var niche = sel.value === "libre"
+      ? "# Fiche niche (décrite par l'utilisateur)\n" + $("in-niche-libre").value.trim()
+      : "# Fiche niche\n" + KB.niches[+sel.value].md;
+    var ctx = [];
+    if ($("in-objectif").value.trim()) ctx.push("Objectif : " + $("in-objectif").value.trim());
+    if ($("in-format").value) ctx.push("Format : " + $("in-format").value);
+    if ($("in-type").value) ctx.push("Type : " + $("in-type").value);
+    var today = new Date(), dd = String(today.getDate()).padStart(2, "0") + "/" + String(today.getMonth() + 1).padStart(2, "0") + "/" + today.getFullYear();
+    return [
+      "Tu es Hook Maker : tu analyses et écris des hooks de vidéos courtes (reels Instagram, TikTok) pour la niche de l'utilisateur. Français, tutoiement, avec les mots de la cible.",
+      "# Règles maison — PRIORITAIRES sur tout le reste\n" + KB.regles,
+      "# Modèles de hooks\n" + KB.hooks,
+      "# Structure d'un script qui retient\n" + KB.structure,
+      "# Méthode d'analyse\n" + KB.methode,
+      niche,
+      "# Demande\nMode : " + mode + " (" + MODE_UI[mode].lbl + ")\n" + (ctx.length ? ctx.join("\n") + "\n" : "Contexte non précisé : déduis objectif, format et type du contenu.\n") +
+        "Date du jour : " + dd + "\n\n" + (vid
+          ? "Source : " + texte + "\nDurée : " + vid.duree_s + " s\nTranscription horodatée (SRT) du reel :\n\"\"\"\n" + vid.srt + "\n\"\"\"\n" +
+            (vid.nbFrames ? "Tu reçois aussi " + vid.nbFrames + " image(s) du reel, prises à 0,5 s, 1,5 s et 3 s : lis l'accroche écrite à l'écran (texte incrusté)." : "Pas d'image disponible : laisse `hook_actuel.textuel` vide.")
+          : "Contenu de l'utilisateur :\n\"\"\"\n" + texte + "\n\"\"\""),
+      "# Format de réponse\nRéponds UNIQUEMENT avec un objet JSON valide, sans texte autour, selon ce schéma (champ sans objet en mode " + mode + " : omets-le) :\n" + KB.schema +
+        "\nContraintes : 3 hooks oraux + 2 textuels, un seul `meilleur: true` par canal ; `verifications` = les 4 règles appliquées au meilleur hook et au script ; " +
+        (mode === "video" ? "`hook_actuel.oral` = ce qui est dit entre 0:00 et ~0:03, `hook_actuel.textuel` = l'accroche écrite lue sur les images, `hook_actuel.timing` renseigné, `source.label` = « Reel · m:ss », `script` = le script complet réécrit avec le meilleur hook, en gardant le fond et la voix de la vidéo." :
+         mode === "sujet" ? "pas de `hook_actuel`, `sujet` = la phrase de l'utilisateur, `puissance` note le meilleur hook proposé (dis-le dans le verdict)." :
+         mode === "hook" ? "`hook_actuel.oral` = le hook donné, `script` = seulement HOOK + PROMESSE + première BOUCLE." :
+         "`hook_actuel` = les premières phrases du script, `script` = le script complet réécrit avec le meilleur hook.")
+    ].join("\n\n");
+  }
+
+  var ctl = null;
+  function setBusy(b, msg, err) {
+    $("go-row").classList.toggle("busy", b);
+    $("go").disabled = b; $("stop").hidden = !b;
+    $("status").textContent = msg || ""; $("status").classList.toggle("err", !!err);
+  }
+  var ERR = {
+    rate_limited: "Trop de demandes pour l'instant. Réessaie dans un moment.",
+    session_expired: "Reconnecte-toi à claude.ai puis réessaie.",
+    invalid_json: "La réponse est arrivée incomplète. Relance l'analyse.",
+    refused: "Claude n'a pas pu traiter ce contenu. Reformule-le.",
+    prompt_too_large: "Texte trop long. Raccourcis ton script.",
+    empty_completion: "Aucune réponse. Relance l'analyse."
+  };
+  $("f").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (!sample) { noSample(); return; }
+    var texte = $("in-texte").value.trim();
+    if (!texte) { setBusy(false, "Écris d'abord " + MODE_UI[mode].lbl.toLowerCase() + ".", true); $("in-texte").focus(); return; }
+    if (sel.value === "libre" && !$("in-niche-libre").value.trim()) { setBusy(false, "Décris ta niche en quelques lignes.", true); $("in-niche-libre").focus(); return; }
+    if (mode === "video" && !mcp) { hostKo = true; setMode("video"); return; }
+    ctl = new AbortController();
+    var myCtl = ctl, vid = null;
+    var step = mode === "video" ? transcrire(texte, myCtl.signal) : Promise.resolve(null);
+    step.then(function (v) {
+      vid = v;
+      if (myCtl.signal.aborted) throw { code: "cancelled" };
+      setBusy(true, "Claude réfléchit… (30 s à 1 min)");
+      var opts = {
+        cache: false, signal: myCtl.signal,
+        onText: function (u) { $("status").textContent = "Claude écrit l'analyse… " + Math.min(99, Math.round(u.text.length / 60)) + " %"; }
+      };
+      if (vid && vid.blobs.length) opts.images = vid.blobs;
+      return sample.json(buildPrompt(texte, vid), opts).catch(function (e) {
+        if (e && e.code === "images_unavailable" && opts.images) { delete opts.images; vid.nbFrames = 0; return sample.json(buildPrompt(texte, vid), opts); }
+        throw e;
+      });
+    }).then(function (r) {
+      if (!r || typeof r !== "object" || !r.hooks) throw { code: "invalid_json" };
+      r.mode = mode;
+      if (mode === "sujet" && !r.sujet) r.sujet = texte;
+      if (vid) { r.source = r.source || {}; r.source.lien = texte; r.source.dossier = vid.dossier; }
+      delete r.exemple;
+      render(r); saveNew(r);
+      setBusy(false, "Analyse prête.");
+      $("result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    }).catch(function (e) {
+      var c = e && e.code;
+      if (c === "cancelled") { setBusy(false, "Analyse arrêtée."); return; }
+      if (c === "not_granted" || c === "sampling_disabled") { setBusy(false, ""); noSample(); return; }
+      if (c === "video") { setBusy(false, e.message, true); return; }
+      if (c === "server_not_connected" || c === "not_in_manifest" || c === "server_unavailable") { hostKo = true; setMode("video"); setBusy(false, "Serveur local hook-maker injoignable.", true); return; }
+      setBusy(false, ERR[c] || "Erreur de connexion. Relance l'analyse.", true);
+    });
+  });
+
+  // ---- Vidéo : yt-dlp + whisper sur le Mac, via le serveur MCP local
+  function payloadOf(res) {
+    if (res && res.payload && typeof res.payload === "object") return res.payload;
+    if (res && res.structuredContent) return res.structuredContent;
+    try { return JSON.parse(res.content[0].text); } catch (e) { return {}; }
+  }
+  function b64ToBlob(b64) {
+    var bin = atob(b64), arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: "image/jpeg" });
+  }
+  function wait(ms, signal) {
+    return new Promise(function (ok, ko) {
+      var t = setTimeout(ok, ms);
+      signal.addEventListener("abort", function () { clearTimeout(t); ko({ code: "cancelled" }); }, { once: true });
+    });
+  }
+  function transcrire(source, signal) {
+    var t0 = Date.now();
+    setBusy(true, "Envoi à ton Mac…");
+    return mcp.callTool(HOST, "lancer_transcription", { source: source }).then(function (res) {
+      var job = payloadOf(res);
+      if (!job.id) throw { code: "video", message: "Le Mac n'a pas lancé la transcription." };
+      function poll() {
+        var s = Math.round((Date.now() - t0) / 1000);
+        setBusy(true, "Téléchargement + transcription sur ton Mac… " + s + " s" + (s > 90 ? " (le 1er passage télécharge le modèle Whisper)" : ""));
+        return wait(4000, signal).then(function () {
+          return mcp.callTool(HOST, "etat_transcription", { id: job.id });
+        }).then(function (r2) {
+          var st = payloadOf(r2);
+          if (st.status === "en_cours") return poll();
+          if (st.status !== "fini") throw { code: "video", message: "Transcription impossible : " + String(st.message || "erreur inconnue").slice(-300) };
+          $("transcript").textContent = st.texte || st.srt || "";
+          $("box-transcript").hidden = false;
+          var frames = (st.frames || []).map(function (f) { return b64ToBlob(f.jpeg_base64); });
+          return { srt: st.srt || st.texte || "", duree_s: st.duree_s, dossier: st.dossier, blobs: frames, nbFrames: frames.length };
+        });
+      }
+      return poll();
+    }, function (e) {
+      if (e && e.code === "tool_error") throw { code: "video", message: e.message || "Le Mac a refusé la demande." };
+      throw e;
+    });
+  }
+  $("stop").onclick = function () { if (ctl) ctl.abort(); };
+
+  function noSample() {
+    $("no-sample").hidden = false; $("go").disabled = true;
+    document.body.classList.remove("has-sample");
+  }
+
+  // ================= HISTORIQUE (db privé, sinon navigateur) =================
+  var col = null, items = [], currentId = null;
+  function histoRender() {
+    var ul = $("histo"); clear(ul);
+    $("histo-empty").hidden = items.length > 0;
+    items.forEach(function (it) {
+      var li = el("li"), b = el("button"); b.type = "button";
+      b.setAttribute("aria-current", String(it.id === currentId));
+      b.appendChild(el("span", "h-t", it.titre || "Analyse"));
+      b.appendChild(el("span", "h-s", it.score > 9000 ? "9000+" : String(it.score || 0)));
+      b.appendChild(el("span", "h-m", (MODES[it.mode] || it.mode || "") + " · " + new Date(it.createdAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })));
+      b.onclick = function () {
+        try { currentId = it.id; render(JSON.parse(it.json)); histoRender(); $("result").scrollIntoView(); } catch (e) {}
+      };
+      li.appendChild(b); ul.appendChild(li);
+    });
+  }
+  function entry(r) {
+    return { titre: String(r.titre || "Analyse").slice(0, 120), mode: r.mode || "", score: Math.round(Number(r.puissance && r.puissance.score) || 0), createdAt: Date.now(), json: JSON.stringify(r) };
+  }
+  function localLoad() { try { items = JSON.parse(store("hm-histo") || "[]"); } catch (e) { items = []; } histoRender(); }
+  function localSave() { store("hm-histo", JSON.stringify(items.slice(0, 40))); }
+  function saveNew(r) {
+    var e = entry(r);
+    if (col) {
+      col.add(e).then(function (ref) { currentId = ref.id; histoRender(); }, function () {});
+    } else {
+      e.id = "l" + e.createdAt; currentId = e.id; items.unshift(e); localSave(); histoRender();
+    }
+  }
+  function saveCurrent() {
+    if (!currentId) return;
+    var e = entry(D);
+    var it = items.filter(function (x) { return x.id === currentId; })[0];
+    if (it) e.createdAt = it.createdAt;
+    if (col && currentId.charAt(0) !== "l") col.doc(currentId).set(e).catch(function () {});
+    else if (it) { it.json = e.json; localSave(); }
+  }
+
+  localLoad();
+  render(EXEMPLE);
+
+  if (window.claude && window.claude.use) {
+    window.claude.use("sample").then(function (s) {
+      if (!s) { noSample(); return; }
+      sample = s; document.body.classList.add("has-sample");
+    }, noSample);
+    window.claude.use("mcp").then(function (m) {
+      mcp = m; if (!m) { hostKo = true; setMode(mode); }
+    }, function () { hostKo = true; setMode(mode); });
+    Promise.all([window.claude.use("db"), window.claude.use("user")]).then(function (a) {
+      var db = a[0], user = a[1];
+      if (!db || !user) return;
+      return user.id().then(function (id) {
+        if (!id) return;
+        col = db.collection("data/users/" + id + "/analyses");
+        col.orderBy("createdAt", "desc").limit(50).onSnapshot(function (snap) {
+          items = snap.docs.map(function (d) { var x = d.data() || {}; x.id = d.id; return x; });
+          histoRender();
+        }, function () { col = null; localLoad(); });
+      });
+    }).catch(function () {});
+  } else {
+    noSample();
+  }
+})();
+</script>
