@@ -102,6 +102,50 @@ Au premier lancement, le skill te pose 5 questions : à qui tu parles, ce que ta
 
 ---
 
+## Hook Maker Studio (interface visuelle)
+
+Une page à part, publiée en Artifact sur ton compte Claude : tu choisis le mode (vidéo, hook, script, sujet) et ta niche, tu colles ton contenu, tu cliques sur **Analyser**. Même résultat que `/hook-maker`, sans taper de commande, avec l'historique de tes analyses.
+
+- Claude tourne sur **ton abonnement** : pas de clé d'API, pas de crédits.
+- Le **mode vidéo** passe par un petit serveur local (`scripts/mcp_server.py`) qui lance yt-dlp, ffmpeg et faster-whisper sur ton Mac. Il ne marche que dans l'**app Claude desktop**.
+- La page embarque tes règles, tes modèles de hooks et tes fiches niches. Quand tu les modifies, demande à Claude de **republier le studio**.
+
+### Installer le studio
+
+Dans Claude Code (app desktop), colle :
+
+```
+Installe Hook Maker Studio en suivant la section « Hook Maker Studio » du README de hook-maker.
+```
+
+### Instructions pour Claude Code
+
+> Cette section s'adresse à Claude quand un utilisateur lui demande d'installer ou de republier le studio.
+
+1. Le skill doit déjà être installé (section Installation ci-dessus) et avoir au moins une fiche dans `niches/`. Sinon, lance d'abord `/hook-maker` pour créer la fiche niche.
+2. Branche le serveur local : dans le fichier de config de l'app Claude (`~/Library/Application Support/Claude/claude_desktop_config.json`, accessible par Réglages → Développeur → Modifier la config), ajoute dans `mcpServers` :
+   ```json
+   "hook-maker": {
+     "command": "/usr/bin/python3",
+     "args": ["<chemin absolu du skill>/scripts/mcp_server.py"]
+   }
+   ```
+   Remplace le chemin par le vrai (ex. `/Users/<nom>/.claude/skills/hook-maker/scripts/mcp_server.py`). Si tu ne peux pas écrire ce fichier toi-même, donne ce bloc à l'utilisateur et explique-lui où le coller. Garde le reste du fichier intact. Ensuite, l'utilisateur doit quitter l'app (⌘Q) et la rouvrir.
+3. Assemble la page :
+   ```bash
+   /usr/bin/python3 <skill>/scripts/build_studio.py
+   ```
+   Elle est écrite dans `analyses/studio/hook-maker-studio.html`.
+4. Publie ce fichier avec l'outil **Artifact** : `icon: "spark"`, `description` : « Interface visuelle de Hook Maker », et ces `capabilities` :
+   ```json
+   {"sample": {"images": true}, "db": {}, "user": {},
+    "mcp": {"servers": [{"server": "host:hook-maker", "tools": ["lancer_transcription", "etat_transcription"]}]}}
+   ```
+   Pour une mise à jour (règles ou niches modifiées), relance l'étape 3 et republie sur la **même** URL d'artifact.
+5. Préviens l'utilisateur : ouvrir le studio dans l'app Claude desktop pour le mode vidéo ; au premier clic, autoriser la page à utiliser Claude et le serveur hook-maker.
+
+---
+
 ## Ce qu'il y a dans le dossier
 
 ```
@@ -115,7 +159,11 @@ hook-maker/
 ├── scripts/
 │   ├── transcribe.sh           Télécharge la vidéo, extrait l'audio et 3 images, lance la transcription
 │   ├── transcribe.py           Transcription avec faster-whisper (sous-titres horodatés)
-│   └── render.py               Injecte l'analyse dans la page de résultat
+│   ├── render.py               Injecte l'analyse dans la page de résultat
+│   ├── build_studio.py         Assemble la page du studio avec tes règles et tes niches
+│   └── mcp_server.py           Serveur local : donne au studio l'accès à yt-dlp et Whisper
+├── studio/
+│   └── studio.src.html         Source du studio (formulaire, historique, rendu)
 ├── template/
 │   └── resultat.html           La page de résultat (style, mise en page, boutons)
 └── analyses/                   Tes analyses (une par vidéo), créé à l'usage

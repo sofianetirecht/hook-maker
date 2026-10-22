@@ -125,3 +125,7 @@ Les réponses courtes suffisent : complète intelligemment, puis montre la fiche
 - « Refais le hook 2 », « plus agressif », « adapte en carrousel », « change le CTA » : modifie `data.json`, relance `render.py`, republie **le même fichier** (même lien). Pas de nouvelle page pour une retouche.
 - Nouvelle vidéo, nouveau script ou nouveau sujet : nouveau dossier, nouvelle page.
 - Si l'utilisateur corrige un hook en expliquant pourquoi (« non, ça ne marche pas parce que… ») et que la correction vaut pour tous ses hooks, propose de l'ajouter à `regles.md`.
+
+## 8. Studio
+
+Si l'utilisateur demande d'installer, de publier ou de mettre à jour **Hook Maker Studio** (l'interface visuelle), suis la section « Hook Maker Studio » de `HM/README.md`.
